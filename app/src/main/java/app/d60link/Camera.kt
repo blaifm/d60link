@@ -14,7 +14,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
+import kotlin.math.abs
 
+/** Un archivo de la tarjeta. */
 data class Photo(
     val handle: Int,
     val name: String,
@@ -22,8 +24,48 @@ data class Photo(
     val date: Long,
     val isRaw: Boolean,
 ) {
-    /** Identifica la foto aunque cambie el handle entre conexiones. */
+    /** Identifica el archivo aunque cambie el handle entre conexiones. */
     val key: String get() = "$name|$size|$date"
+    val baseName: String get() = name.substringBeforeLast('.')
+}
+
+/** Una foto tal como se ve en la galería: un JPG, un RAW o una pareja RAW+JPG. */
+data class Item(val jpg: Photo?, val raw: Photo?) {
+    val id: Int get() = (jpg ?: raw)!!.handle
+    val main: Photo get() = (jpg ?: raw)!!
+    val date: Long get() = main.date
+    val name: String get() = main.baseName
+    val isPair: Boolean get() = jpg != null && raw != null
+    val files: List<Photo> get() = listOfNotNull(jpg, raw)
+    val totalSize: Long get() = files.sumOf { it.size }
+
+    /** Archivos a bajar según la preferencia para parejas RAW+JPG. */
+    fun filesFor(mode: PairMode): List<Photo> = when {
+        !isPair -> files
+        mode == PairMode.JPG -> listOf(jpg!!)
+        mode == PairMode.RAW -> listOf(raw!!)
+        else -> files
+    }
+
+    companion object {
+        /** Empareja DSC_0001.JPG con DSC_0001.NEF si se hicieron en el mismo disparo. */
+        fun group(photos: List<Photo>): List<Item> {
+            val items = ArrayList<Item>()
+            photos.groupBy { it.baseName.uppercase() }.values.forEach { same ->
+                val raws = same.filter { it.isRaw }.toMutableList()
+                same.filterNot { it.isRaw }.forEach { jpg ->
+                    val match = raws.minByOrNull { abs(it.date - jpg.date) }
+                        ?.takeIf { abs(it.date - jpg.date) <= PAIR_WINDOW_MS }
+                    if (match != null) raws.remove(match)
+                    items += Item(jpg, match)
+                }
+                raws.forEach { items += Item(null, it) }
+            }
+            return items.sortedWith(compareByDescending<Item> { it.date }.thenByDescending { it.name })
+        }
+
+        private const val PAIR_WINDOW_MS = 5_000L
+    }
 }
 
 /**
@@ -36,6 +78,7 @@ class Camera(private val context: Context, val usbDevice: UsbDevice) {
     private val mtpDispatcher = executor.asCoroutineDispatcher()
     private var device: MtpDevice? = null
     private val thumbs = LruCache<Int, Bitmap>(400)
+    private val previews = LruCache<Int, Bitmap>(3)
 
     var model: String = context.getString(R.string.camera_default)
         private set
@@ -86,8 +129,22 @@ class Camera(private val context: Context, val usbDevice: UsbDevice) {
                 }
                 if (index % 10 == 0 || index == handles.lastIndex) onProgress(index + 1, handles.size)
             }
-            photos.sortedWith(compareByDescending<Photo> { it.date }.thenByDescending { it.name })
+            photos
         }
+
+    /** Espacio libre y total de la tarjeta, en bytes. */
+    suspend fun storage(): Pair<Long, Long>? = withContext(mtpDispatcher) {
+        val mtp = device ?: return@withContext null
+        var free = 0L
+        var total = 0L
+        mtp.storageIds?.forEach { id ->
+            mtp.getStorageInfo(id)?.let {
+                free += it.freeSpace
+                total += it.maxCapacity
+            }
+        }
+        if (total > 0) free to total else null
+    }
 
     suspend fun thumbnail(photo: Photo): Bitmap? {
         thumbs.get(photo.handle)?.let { return it }
@@ -101,11 +158,12 @@ class Camera(private val context: Context, val usbDevice: UsbDevice) {
 
     /** Vista ampliada: el JPG completo reducido a ~2000 px. Los RAW se quedan en miniatura. */
     suspend fun preview(photo: Photo): Bitmap? {
+        previews.get(photo.handle)?.let { return it }
         if (photo.isRaw || photo.size <= 0 || photo.size > MAX_PREVIEW_BYTES) return thumbnail(photo)
         val bytes = withContext(mtpDispatcher) {
             device?.getObject(photo.handle, photo.size.toInt())
         } ?: return thumbnail(photo)
-        return withContext(Dispatchers.Default) {
+        val bitmap = withContext(Dispatchers.Default) {
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
             var sample = 1
@@ -114,10 +172,12 @@ class Camera(private val context: Context, val usbDevice: UsbDevice) {
                 bytes, 0, bytes.size,
                 BitmapFactory.Options().apply { inSampleSize = sample },
             )
-        } ?: thumbnail(photo)
+        } ?: return thumbnail(photo)
+        previews.put(photo.handle, bitmap)
+        return bitmap
     }
 
-    /** Copia la foto a DCIM/NikonD60 vía MediaStore. */
+    /** Copia el archivo a DCIM/NikonD60 vía MediaStore. */
     suspend fun download(photo: Photo): Boolean = withContext(mtpDispatcher) {
         val mtp = device ?: return@withContext false
         val resolver = context.contentResolver
@@ -144,6 +204,16 @@ class Camera(private val context: Context, val usbDevice: UsbDevice) {
         ok
     }
 
+    /** Borra el archivo de la tarjeta de la cámara. */
+    suspend fun deleteFromCard(photo: Photo): Boolean = withContext(mtpDispatcher) {
+        val ok = runCatching { device?.deleteObject(photo.handle) ?: false }.getOrDefault(false)
+        if (ok) {
+            thumbs.remove(photo.handle)
+            previews.remove(photo.handle)
+        }
+        ok
+    }
+
     fun close() {
         executor.execute {
             runCatching { device?.close() }
@@ -151,6 +221,7 @@ class Camera(private val context: Context, val usbDevice: UsbDevice) {
         }
         executor.shutdown()
         thumbs.evictAll()
+        previews.evictAll()
     }
 
     companion object {

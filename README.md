@@ -13,7 +13,12 @@ and Spanish (follows the device language).
 - Marks the photos you already downloaded, with "All / New" filters.
 - Multiple selection (long press) or a whole day at once.
 - "Download new" in one tap. Saves to `DCIM/NikonD60` through MediaStore.
-- Zoomable preview before downloading (NEF files show their thumbnail).
+- Full-screen viewer: swipe for next/previous, pinch or double-tap to zoom (NEF files show their thumbnail).
+- Date and time in the viewer, configurable: off, info bar, or orange film-camera stamp on the photo.
+- RAW+JPG pairs shown as one photo; choose to download both, JPG only or RAW only.
+- Downloads keep running in the background, with a progress notification.
+- Delete from the card (selection, or offered after downloading), always with confirmation.
+- Free space on the card in the header.
 - Material 3 with dynamic colors.
 
 ## Usage
@@ -36,8 +41,10 @@ The APK ends up in `app/build/outputs/apk/release/`. The release build is signed
 ## Structure
 
 - `Camera.kt`: PTP access through `android.mtp.MtpDevice` (single thread), thumbnails, preview and download to MediaStore.
-- `MainViewModel.kt`: state, selection, record of downloaded photos.
-- `MainActivity.kt`: USB detection, permissions, connect and disconnect.
+- `Controller.kt`: app-wide state and logic (USB, selection, downloads, deletion). Lives in the Application so downloads survive the screen closing.
+- `DownloadService.kt`: foreground service with the progress notification.
+- `Settings.kt`: user preferences.
+- `MainActivity.kt`: entry point and notification permission.
 - `Ui.kt` / `Theme.kt`: Jetpack Compose UI.
 - `res/values` (English) and `res/values-es` (Spanish): UI strings.
 

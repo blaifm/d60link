@@ -13,7 +13,12 @@ inglés y español (según el idioma del móvil).
 - Marca las fotos ya descargadas y filtra "Todas / Nuevas".
 - Selección múltiple (pulsación larga) o por día.
 - "Bajar nuevas" en un toque. Guarda en `DCIM/NikonD60` vía MediaStore.
-- Vista ampliada con zoom antes de descargar (los NEF se ven con su miniatura).
+- Visor a pantalla completa: desliza para pasar a la siguiente o anterior, zoom con dos dedos o doble toque (los NEF se ven con su miniatura).
+- Fecha y hora en el visor, configurable: desactivada, en la barra o como sello naranja sobre la foto, estilo cámara de carrete.
+- Parejas RAW+JPG como una sola foto; eliges bajar ambos, solo JPG o solo RAW.
+- Las descargas siguen en segundo plano, con notificación de progreso.
+- Borrar de la tarjeta (desde la selección, u ofrecido tras bajar), siempre con confirmación.
+- Espacio libre de la tarjeta en la cabecera.
 - Material 3 con colores dinámicos.
 
 ## Uso
@@ -36,8 +41,10 @@ La APK queda en `app/build/outputs/apk/release/`. El build de release se firma c
 ## Estructura
 
 - `Camera.kt`: acceso PTP con `android.mtp.MtpDevice` (un único hilo), miniaturas, vista previa y descarga a MediaStore.
-- `MainViewModel.kt`: estado, selección, registro de fotos descargadas.
-- `MainActivity.kt`: detección USB, permisos, conexión y desconexión.
+- `Controller.kt`: estado y lógica de la app (USB, selección, descargas, borrado). Vive en la Application para que la descarga siga aunque se cierre la pantalla.
+- `DownloadService.kt`: servicio en primer plano con la notificación de progreso.
+- `Settings.kt`: ajustes del usuario.
+- `MainActivity.kt`: punto de entrada y permiso de notificaciones.
 - `Ui.kt` / `Theme.kt`: interfaz en Jetpack Compose.
 - `res/values` (inglés) y `res/values-es` (español): textos de la interfaz.
 

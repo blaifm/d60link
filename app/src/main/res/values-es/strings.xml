@@ -60,4 +60,49 @@
         <item quantity="other">%1$d fotos</item>
     </plurals>
     <string name="raw_preview_note"> · vista previa reducida</string>
+
+    <!-- v0.3 -->
+    <string name="cd_settings">Ajustes</string>
+    <string name="cd_delete">Borrar de la tarjeta</string>
+    <string name="free_space">%1$s libres</string>
+    <string name="badge_pair">RAW+JPG</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="set_pairs">Parejas RAW + JPG</string>
+    <string name="set_pairs_desc">Qué bajar cuando un disparo tiene los dos archivos</string>
+    <string name="opt_both">Ambos</string>
+    <string name="opt_jpg">JPG</string>
+    <string name="opt_raw">RAW</string>
+    <string name="set_date">Fecha en el visor</string>
+    <string name="set_date_desc">Sello: números naranjas sobre la foto, estilo cámara de carrete</string>
+    <string name="opt_off">No</string>
+    <string name="opt_bar">Barra</string>
+    <string name="opt_stamp">Sello</string>
+    <string name="set_time">Mostrar la hora</string>
+    <string name="set_offer_delete">Ofrecer borrar de la tarjeta tras bajar</string>
+    <string name="set_delete_note">Lo que se borra de la tarjeta no se puede recuperar.</string>
+    <string name="del_title">¿Borrar de la tarjeta?</string>
+    <plurals name="del_body">
+        <item quantity="one">Se borrará %1$d archivo de la tarjeta de la cámara. No se puede deshacer.</item>
+        <item quantity="other">Se borrarán %1$d archivos de la tarjeta de la cámara. No se puede deshacer.</item>
+    </plurals>
+    <plurals name="del_warn_new">
+        <item quantity="one">Ojo: %1$d foto aún no la has bajado.</item>
+        <item quantity="other">Ojo: %1$d fotos aún no las has bajado.</item>
+    </plurals>
+    <string name="btn_delete">Borrar</string>
+    <string name="btn_cancel">Cancelar</string>
+    <string name="btn_not_now">Ahora no</string>
+    <string name="offer_title">¿Borrar de la tarjeta lo que acabas de bajar?</string>
+    <plurals name="offer_body">
+        <item quantity="one">%1$d archivo ya está en el móvil. Puedes borrarlo de la tarjeta para liberar espacio.</item>
+        <item quantity="other">%1$d archivos ya están en el móvil. Puedes borrarlos de la tarjeta para liberar espacio.</item>
+    </plurals>
+    <string name="deleting">Borrando %1$d de %2$d</string>
+    <plurals name="msg_deleted">
+        <item quantity="one">%1$d archivo borrado de la tarjeta</item>
+        <item quantity="other">%1$d archivos borrados de la tarjeta</item>
+    </plurals>
+    <string name="msg_delete_partial">%1$d borrados, %2$d con error</string>
+    <string name="notif_channel">Transferencias</string>
+    <string name="notif_preparing">Preparando…</string>
 </resources>
