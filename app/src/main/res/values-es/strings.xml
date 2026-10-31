@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">D60 Link</string>
+    <string name="camera_default">Cámara</string>
+
+    <!-- Barra superior -->
+    <plurals name="selected_count">
+        <item quantity="one">%1$d seleccionada</item>
+        <item quantity="other">%1$d seleccionadas</item>
+    </plurals>
+    <string name="cd_cancel_selection">Cancelar selección</string>
+    <string name="action_select_all">Todas</string>
+    <string name="cd_reload">Volver a leer la tarjeta</string>
+
+    <!-- Botones -->
+    <string name="fab_download_n">Bajar %1$d</string>
+    <string name="fab_download_new">Bajar nuevas (%1$d)</string>
+    <string name="btn_search">Buscar cámara</string>
+    <string name="btn_search_again">Buscar otra vez</string>
+    <string name="btn_request_permission">Pedir permiso</string>
+    <string name="btn_retry">Reintentar</string>
+    <string name="btn_select_day">Seleccionar</string>
+    <string name="btn_download">Bajar</string>
+    <string name="btn_download_again">Bajar otra vez</string>
+    <string name="cd_close">Cerrar</string>
+
+    <!-- Estados -->
+    <string name="no_camera_title">Conecta la cámara</string>
+    <string name="no_camera_body">Enciende la D60 y conéctala con el cable OTG.\n\nEn la cámara: Menú configuración › USB › MTP/PTP.</string>
+    <string name="mass_title">La cámara está en modo almacenamiento</string>
+    <string name="mass_body">Cambia en la cámara: Menú configuración › USB › MTP/PTP.\nLuego desconecta y vuelve a conectar el cable.</string>
+    <string name="perm_title">Falta el permiso USB</string>
+    <string name="perm_body">Android tiene que dejar a la app hablar con la cámara.</string>
+    <string name="error_title">Algo ha fallado</string>
+    <string name="err_open">No he podido abrir la cámara. Desconecta y vuelve a conectar el cable.</string>
+    <string name="st_connecting">Conectando con la cámara…</string>
+    <string name="st_reading">Leyendo la tarjeta…</string>
+    <string name="st_reading_n">Leyendo la tarjeta · %1$d de %2$d</string>
+
+    <!-- Descarga -->
+    <string name="downloading">Descargando %1$d de %2$d</string>
+    <string name="downloading_failed"> · %1$d con error</string>
+    <plurals name="msg_saved">
+        <item quantity="one">%1$d foto guardada en DCIM/%2$s</item>
+        <item quantity="other">%1$d fotos guardadas en DCIM/%2$s</item>
+    </plurals>
+    <string name="msg_none_saved">No se ha podido guardar ninguna foto</string>
+    <string name="msg_partial">%1$d guardadas, %2$d con error</string>
+
+    <!-- Galería -->
+    <string name="chip_all">Todas · %1$d</string>
+    <string name="chip_new">Nuevas · %1$d</string>
+    <string name="empty_all_done">Ya tienes todas las fotos de la tarjeta 🎉</string>
+    <string name="empty_no_photos">No hay fotos en la tarjeta</string>
+    <string name="today">Hoy</string>
+    <string name="yesterday">Ayer</string>
+    <string name="no_date">Sin fecha</string>
+    <plurals name="photo_count">
+        <item quantity="one">%1$d foto</item>
+        <item quantity="other">%1$d fotos</item>
+    </plurals>
+    <string name="raw_preview_note"> · vista previa reducida</string>
+</resources>

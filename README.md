@@ -1,43 +1,48 @@
 # D60 Link
 
-App Android para ver y descargar las fotos de una Nikon D60 (o cualquier cámara PTP) por cable USB OTG, sin pasar por el ordenador.
+🇪🇸 [Versión en español](README.es.md)
 
-## Qué hace
+Android app (Material 3) to browse and download the photos on a Nikon D60 (or any
+PTP camera) over a USB OTG cable, without going through a computer. UI in English
+and Spanish (follows the device language).
 
-- Se abre sola al conectar la cámara.
-- Galería con las miniaturas que trae la propia cámara, agrupada por días.
-- Marca las fotos ya descargadas y filtra "Todas / Nuevas".
-- Selección múltiple (pulsación larga) o por día.
-- "Bajar nuevas" en un toque. Guarda en `DCIM/NikonD60` vía MediaStore.
-- Vista ampliada con zoom antes de descargar (los NEF se ven con su miniatura).
-- Material 3 con colores dinámicos.
+## Features
 
-## Uso
+- Opens by itself when the camera is plugged in.
+- Gallery built from the camera's own thumbnails, grouped by day.
+- Marks the photos you already downloaded, with "All / New" filters.
+- Multiple selection (long press) or a whole day at once.
+- "Download new" in one tap. Saves to `DCIM/NikonD60` through MediaStore.
+- Zoomable preview before downloading (NEF files show their thumbnail).
+- Material 3 with dynamic colors.
 
-1. En la cámara: **Menú configuración › USB › MTP/PTP**.
-2. Cable OTG **Mini-USB (Mini-B) macho → USB-C macho**.
-3. Enciende la cámara, conéctala y acepta el permiso USB.
+## Usage
 
-## Compilar
+1. On the camera: **Setup menu › USB › MTP/PTP**.
+2. OTG cable **Mini-USB (Mini-B) male → USB-C male**.
+3. Turn the camera on, plug it in and accept the USB permission.
 
-Requisitos: JDK 17+, Android SDK con `platforms;android-35` y `build-tools;35.0.0`.
+## Building
+
+Requirements: JDK 17+, Android SDK with `platforms;android-35` and `build-tools;35.0.0`.
 
 ```bash
-echo "sdk.dir=/ruta/al/android-sdk" > local.properties
+echo "sdk.dir=/path/to/android-sdk" > local.properties
 gradle assembleRelease
 ```
 
-La APK queda en `app/build/outputs/apk/release/`. El build de release se firma con la clave debug.
+The APK ends up in `app/build/outputs/apk/release/`. The release build is signed with the debug key.
 
-## Estructura
+## Structure
 
-- `Camera.kt`: acceso PTP con `android.mtp.MtpDevice` (un único hilo), miniaturas, vista previa y descarga a MediaStore.
-- `MainViewModel.kt`: estado, selección, registro de fotos descargadas.
-- `MainActivity.kt`: detección USB, permisos, conexión y desconexión.
-- `Ui.kt` / `Theme.kt`: interfaz en Jetpack Compose.
+- `Camera.kt`: PTP access through `android.mtp.MtpDevice` (single thread), thumbnails, preview and download to MediaStore.
+- `MainViewModel.kt`: state, selection, record of downloaded photos.
+- `MainActivity.kt`: USB detection, permissions, connect and disconnect.
+- `Ui.kt` / `Theme.kt`: Jetpack Compose UI.
+- `res/values` (English) and `res/values-es` (Spanish): UI strings.
 
-## Pendiente de verificar con la cámara real
+## Still to verify with the real camera
 
-- Detección en modo MTP/PTP y aviso en modo almacenamiento masivo.
-- Fechas de las fotos.
-- Que MediaStore acepte los NEF (`image/x-nikon-nef`).
+- Detection in MTP/PTP mode, and the warning in mass storage mode.
+- Photo dates.
+- Whether MediaStore accepts NEF files (`image/x-nikon-nef`).

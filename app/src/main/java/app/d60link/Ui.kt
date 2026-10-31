@@ -76,6 +76,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -87,22 +89,24 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
 
-private val ES = Locale.forLanguageTag("es-ES")
-private val DAY_FMT = DateTimeFormatter.ofPattern("EEEE d 'de' MMMM yyyy", ES)
-private val FULL_FMT = DateTimeFormatter.ofPattern("d MMM yyyy, HH:mm", ES)
+private val DAY_FMT: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)
+private val FULL_FMT: DateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
 
 private fun Long.toDay(): LocalDate? =
     if (this <= 0) null else Instant.ofEpochMilli(this).atZone(ZoneId.systemDefault()).toLocalDate()
 
+@Composable
 private fun dayLabel(day: LocalDate?): String {
-    if (day == null) return "Sin fecha"
+    if (day == null) return stringResource(R.string.no_date)
     val today = LocalDate.now()
     return when (day) {
-        today -> "Hoy"
-        today.minusDays(1) -> "Ayer"
-        else -> day.format(DAY_FMT).replaceFirstChar { it.titlecase(ES) }
+        today -> stringResource(R.string.today)
+        today.minusDays(1) -> stringResource(R.string.yesterday)
+        else -> day.format(DAY_FMT.withLocale(Locale.getDefault()))
+            .replaceFirstChar { it.titlecase(Locale.getDefault()) }
     }
 }
 
@@ -125,14 +129,14 @@ fun App(vm: MainViewModel, onScan: () -> Unit) {
         topBar = {
             if (s.selecting) {
                 TopAppBar(
-                    title = { Text("${s.selected.size} seleccionadas") },
+                    title = { Text(pluralStringResource(R.plurals.selected_count, s.selected.size, s.selected.size)) },
                     navigationIcon = {
                         IconButton(onClick = vm::clearSelection) {
-                            Icon(Icons.Default.Close, contentDescription = "Cancelar selección")
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cd_cancel_selection))
                         }
                     },
                     actions = {
-                        TextButton(onClick = { vm.selectAll(s.visiblePhotos) }) { Text("Todas") }
+                        TextButton(onClick = { vm.selectAll(s.visiblePhotos) }) { Text(stringResource(R.string.action_select_all)) }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -142,7 +146,7 @@ fun App(vm: MainViewModel, onScan: () -> Unit) {
                 TopAppBar(
                     title = {
                         Column {
-                            Text("D60 Link")
+                            Text(stringResource(R.string.app_name))
                             if (s.status is Status.Ready) {
                                 Text(
                                     s.model,
@@ -155,7 +159,7 @@ fun App(vm: MainViewModel, onScan: () -> Unit) {
                     actions = {
                         if (s.status is Status.Ready && s.download == null) {
                             IconButton(onClick = vm::reload) {
-                                Icon(Icons.Default.Refresh, contentDescription = "Volver a leer la tarjeta")
+                                Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.cd_reload))
                             }
                         }
                     },
@@ -168,12 +172,12 @@ fun App(vm: MainViewModel, onScan: () -> Unit) {
                 canDownload && s.selecting -> ExtendedFloatingActionButton(
                     onClick = vm::downloadSelected,
                     icon = { Icon(painterResource(R.drawable.ic_download), contentDescription = null) },
-                    text = { Text("Bajar ${s.selected.size}") },
+                    text = { Text(stringResource(R.string.fab_download_n, s.selected.size)) },
                 )
                 canDownload && s.newPhotos.isNotEmpty() -> ExtendedFloatingActionButton(
                     onClick = vm::downloadNew,
                     icon = { Icon(painterResource(R.drawable.ic_download), contentDescription = null) },
-                    text = { Text("Bajar nuevas (${s.newPhotos.size})") },
+                    text = { Text(stringResource(R.string.fab_download_new, s.newPhotos.size)) },
                 )
             }
         },
@@ -183,32 +187,32 @@ fun App(vm: MainViewModel, onScan: () -> Unit) {
         Box(Modifier.padding(padding).fillMaxSize()) {
             when (val st = s.status) {
                 Status.NoCamera -> Message(
-                    title = "Conecta la cámara",
-                    body = "Enciende la D60 y conéctala con el cable OTG.\n\nEn la cámara: Menú configuración › USB › MTP/PTP.",
-                    action = "Buscar cámara",
+                    title = stringResource(R.string.no_camera_title),
+                    body = stringResource(R.string.no_camera_body),
+                    action = stringResource(R.string.btn_search),
                     onAction = onScan,
                 )
                 Status.MassStorage -> Message(
-                    title = "La cámara está en modo almacenamiento",
-                    body = "Cambia en la cámara: Menú configuración › USB › MTP/PTP.\nLuego desconecta y vuelve a conectar el cable.",
-                    action = "Buscar otra vez",
+                    title = stringResource(R.string.mass_title),
+                    body = stringResource(R.string.mass_body),
+                    action = stringResource(R.string.btn_search_again),
                     onAction = onScan,
                 )
                 Status.NeedPermission -> Message(
-                    title = "Falta el permiso USB",
-                    body = "Android tiene que dejar a la app hablar con la cámara.",
-                    action = "Pedir permiso",
+                    title = stringResource(R.string.perm_title),
+                    body = stringResource(R.string.perm_body),
+                    action = stringResource(R.string.btn_request_permission),
                     onAction = onScan,
                 )
-                Status.Connecting -> Loading("Conectando con la cámara…", null)
+                Status.Connecting -> Loading(stringResource(R.string.st_connecting), null)
                 is Status.Reading -> Loading(
-                    if (st.total > 0) "Leyendo la tarjeta · ${st.done} de ${st.total}" else "Leyendo la tarjeta…",
+                    if (st.total > 0) stringResource(R.string.st_reading_n, st.done, st.total) else stringResource(R.string.st_reading),
                     if (st.total > 0) st.done.toFloat() / st.total else null,
                 )
                 is Status.Error -> Message(
-                    title = "Algo ha fallado",
+                    title = stringResource(R.string.error_title),
                     body = st.message,
-                    action = "Reintentar",
+                    action = stringResource(R.string.btn_retry),
                     onAction = onScan,
                 )
                 Status.Ready -> Gallery(
@@ -290,7 +294,8 @@ private fun DownloadBar(p: DownloadProgress) {
     Surface(tonalElevation = 3.dp, color = MaterialTheme.colorScheme.surfaceContainer) {
         Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 20.dp, vertical = 14.dp)) {
             Text(
-                "Descargando ${p.done} de ${p.total}" + if (p.failed > 0) " · ${p.failed} con error" else "",
+                stringResource(R.string.downloading, p.done, p.total) +
+                    if (p.failed > 0) stringResource(R.string.downloading_failed, p.failed) else "",
                 style = MaterialTheme.typography.labelLarge,
             )
             Spacer(Modifier.height(8.dp))
@@ -312,12 +317,12 @@ private fun Gallery(s: UiState, vm: MainViewModel, onOpen: (Photo) -> Unit) {
             FilterChip(
                 selected = !s.onlyNew,
                 onClick = { vm.setOnlyNew(false) },
-                label = { Text("Todas · ${s.photos.size}") },
+                label = { Text(stringResource(R.string.chip_all, s.photos.size)) },
             )
             FilterChip(
                 selected = s.onlyNew,
                 onClick = { vm.setOnlyNew(true) },
-                label = { Text("Nuevas · ${s.newPhotos.size}") },
+                label = { Text(stringResource(R.string.chip_new, s.newPhotos.size)) },
             )
         }
 
@@ -325,8 +330,8 @@ private fun Gallery(s: UiState, vm: MainViewModel, onOpen: (Photo) -> Unit) {
         if (photos.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
                 Text(
-                    if (s.onlyNew && s.photos.isNotEmpty()) "Ya tienes todas las fotos de la tarjeta 🎉"
-                    else "No hay fotos en la tarjeta",
+                    if (s.onlyNew && s.photos.isNotEmpty()) stringResource(R.string.empty_all_done)
+                    else stringResource(R.string.empty_no_photos),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -352,12 +357,12 @@ private fun Gallery(s: UiState, vm: MainViewModel, onOpen: (Photo) -> Unit) {
                         Column(Modifier.weight(1f)) {
                             Text(dayLabel(day), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                             Text(
-                                "${dayPhotos.size} ${if (dayPhotos.size == 1) "foto" else "fotos"}",
+                                pluralStringResource(R.plurals.photo_count, dayPhotos.size, dayPhotos.size),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
-                        TextButton(onClick = { vm.selectAll(dayPhotos) }) { Text("Seleccionar") }
+                        TextButton(onClick = { vm.selectAll(dayPhotos) }) { Text(stringResource(R.string.btn_select_day)) }
                     }
                 }
                 items(dayPhotos, key = { it.handle }) { photo ->
@@ -500,7 +505,7 @@ private fun Viewer(
                 onClick = onClose,
                 modifier = Modifier.align(Alignment.TopStart).statusBarsPadding().padding(8.dp),
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.White)
+                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cd_close), tint = Color.White)
             }
 
             Surface(
@@ -514,11 +519,12 @@ private fun Viewer(
                     Column(Modifier.weight(1f)) {
                         Text(photo.name, color = Color.White, style = MaterialTheme.typography.titleSmall)
                         val date = if (photo.date > 0) {
-                            Instant.ofEpochMilli(photo.date).atZone(ZoneId.systemDefault()).format(FULL_FMT)
-                        } else "Sin fecha"
+                            Instant.ofEpochMilli(photo.date).atZone(ZoneId.systemDefault())
+                                .format(FULL_FMT.withLocale(Locale.getDefault()))
+                        } else stringResource(R.string.no_date)
                         Text(
                             "$date · ${Formatter.formatShortFileSize(context, photo.size)}" +
-                                if (photo.isRaw) " · vista previa reducida" else "",
+                                if (photo.isRaw) stringResource(R.string.raw_preview_note) else "",
                             color = Color.White.copy(alpha = 0.75f),
                             style = MaterialTheme.typography.bodySmall,
                         )
@@ -527,7 +533,7 @@ private fun Viewer(
                     FilledTonalButton(onClick = onDownload, enabled = !busy) {
                         Icon(painterResource(R.drawable.ic_download), contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.size(8.dp))
-                        Text(if (downloaded) "Bajar otra vez" else "Bajar")
+                        Text(stringResource(if (downloaded) R.string.btn_download_again else R.string.btn_download))
                     }
                 }
             }

@@ -37,7 +37,7 @@ class Camera(private val context: Context, val usbDevice: UsbDevice) {
     private var device: MtpDevice? = null
     private val thumbs = LruCache<Int, Bitmap>(400)
 
-    var model: String = "Cámara"
+    var model: String = context.getString(R.string.camera_default)
         private set
 
     suspend fun open(): Boolean = withContext(mtpDispatcher) {

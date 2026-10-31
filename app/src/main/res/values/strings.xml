@@ -1,4 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">D60 Link</string>
+    <string name="camera_default">Camera</string>
+
+    <!-- Top bar -->
+    <plurals name="selected_count">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
+    <string name="cd_cancel_selection">Cancel selection</string>
+    <string name="action_select_all">All</string>
+    <string name="cd_reload">Read the card again</string>
+
+    <!-- Buttons -->
+    <string name="fab_download_n">Download %1$d</string>
+    <string name="fab_download_new">Download new (%1$d)</string>
+    <string name="btn_search">Find camera</string>
+    <string name="btn_search_again">Search again</string>
+    <string name="btn_request_permission">Request permission</string>
+    <string name="btn_retry">Retry</string>
+    <string name="btn_select_day">Select</string>
+    <string name="btn_download">Download</string>
+    <string name="btn_download_again">Download again</string>
+    <string name="cd_close">Close</string>
+
+    <!-- States -->
+    <string name="no_camera_title">Connect the camera</string>
+    <string name="no_camera_body">Turn on the D60 and plug it in with the OTG cable.\n\nOn the camera: Setup menu › USB › MTP/PTP.</string>
+    <string name="mass_title">The camera is in mass storage mode</string>
+    <string name="mass_body">Change it on the camera: Setup menu › USB › MTP/PTP.\nThen unplug and plug the cable back in.</string>
+    <string name="perm_title">USB permission needed</string>
+    <string name="perm_body">Android has to let the app talk to the camera.</string>
+    <string name="error_title">Something went wrong</string>
+    <string name="err_open">Couldn\'t open the camera. Unplug and plug the cable back in.</string>
+    <string name="st_connecting">Connecting to the camera…</string>
+    <string name="st_reading">Reading the card…</string>
+    <string name="st_reading_n">Reading the card · %1$d of %2$d</string>
+
+    <!-- Download -->
+    <string name="downloading">Downloading %1$d of %2$d</string>
+    <string name="downloading_failed"> · %1$d failed</string>
+    <plurals name="msg_saved">
+        <item quantity="one">%1$d photo saved to DCIM/%2$s</item>
+        <item quantity="other">%1$d photos saved to DCIM/%2$s</item>
+    </plurals>
+    <string name="msg_none_saved">No photo could be saved</string>
+    <string name="msg_partial">%1$d saved, %2$d failed</string>
+
+    <!-- Gallery -->
+    <string name="chip_all">All · %1$d</string>
+    <string name="chip_new">New · %1$d</string>
+    <string name="empty_all_done">You already have every photo on the card 🎉</string>
+    <string name="empty_no_photos">No photos on the card</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="no_date">No date</string>
+    <plurals name="photo_count">
+        <item quantity="one">%1$d photo</item>
+        <item quantity="other">%1$d photos</item>
+    </plurals>
+    <string name="raw_preview_note"> · reduced preview</string>
 </resources>

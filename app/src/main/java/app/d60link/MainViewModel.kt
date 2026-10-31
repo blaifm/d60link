@@ -60,7 +60,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         _state.update { it.copy(status = Status.Connecting, photos = emptyList(), selected = emptySet()) }
         viewModelScope.launch {
             if (!cam.open()) {
-                _state.update { it.copy(status = Status.Error("No he podido abrir la cámara. Desconecta y vuelve a conectar el cable.")) }
+                _state.update { it.copy(status = Status.Error(str(R.string.err_open))) }
                 return@launch
             }
             _state.update { it.copy(model = cam.model, status = Status.Reading(0, 0)) }
@@ -129,14 +129,17 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 _state.update { it.copy(download = DownloadProgress(i + 1, photos.size, failed)) }
             }
             val ok = photos.size - failed
+            val res = getApplication<Application>().resources
             val msg = when {
-                failed == 0 -> "$ok ${if (ok == 1) "foto guardada" else "fotos guardadas"} en DCIM/${Camera.FOLDER}"
-                ok == 0 -> "No se ha podido guardar ninguna foto"
-                else -> "$ok guardadas, $failed con error"
+                failed == 0 -> res.getQuantityString(R.plurals.msg_saved, ok, ok, Camera.FOLDER)
+                ok == 0 -> res.getString(R.string.msg_none_saved)
+                else -> res.getString(R.string.msg_partial, ok, failed)
             }
             _state.update { it.copy(download = null, message = msg) }
         }
     }
+
+    private fun str(id: Int): String = getApplication<Application>().getString(id)
 
     private fun markDownloaded(photo: Photo) {
         _state.update { it.copy(downloaded = it.downloaded + photo.key) }
